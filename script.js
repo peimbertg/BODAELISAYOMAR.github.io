@@ -438,4 +438,3 @@ function startCountdown() {
 
 startCountdown();
 
-         
