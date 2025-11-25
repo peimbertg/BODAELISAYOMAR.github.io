@@ -493,7 +493,7 @@ function startCountdown() {
         return;
     }
 
-    const targetDate = new Date('2025-12-27T00:00:00');
+    const targetDate = new Date('2025-12-27T12:00:00-07:00'); // 12 PM (UTC-7) Ciudad Obregón, Sonora
 
     const updateCountdown = () => {
         const now = Date.now();
