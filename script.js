@@ -232,6 +232,7 @@ const imagePaths = [
 
 const HIGH_PRIORITY_COUNT = 5;
 const UNIQUE_IMAGE_COUNT = 9;
+const MOBILE_SLIDE_INTERVAL = 4500;
 
 function preloadImageGroup(paths, priorityLabel = 'auto') {
     if (!paths.length) return;
@@ -294,12 +295,98 @@ if (document.readyState === 'complete') {
     window.addEventListener('load', scheduleDeferredImagePreload, { once: true });
 }
 
+function initMobileGallery() {
+    const mobileGallery = document.getElementById('mobileGallery');
+    const imageEl = document.getElementById('mobileGalleryImage');
+    const indicatorEl = document.getElementById('mobileGalleryIndicator');
+    const prevBtn = document.getElementById('mobilePrev');
+    const nextBtn = document.getElementById('mobileNext');
+    const playPauseBtn = document.getElementById('mobilePlayPause');
+
+    if (!mobileGallery || !imageEl || !indicatorEl || !prevBtn || !nextBtn || !playPauseBtn) {
+        return;
+    }
+
+    let currentIndex = 0;
+    let isPlayingMobile = true;
+    let autoInterval = null;
+
+    function updateSlide() {
+        const safeIndex = ((currentIndex % imagePaths.length) + imagePaths.length) % imagePaths.length;
+        currentIndex = safeIndex;
+        const nextSrc = imagePaths[safeIndex];
+        imageEl.src = nextSrc;
+        imageEl.alt = `Recuerdo ${safeIndex + 1} de Omar y Elisa`;
+        indicatorEl.textContent = `${safeIndex + 1} / ${imagePaths.length}`;
+    }
+
+    function goNext() {
+        currentIndex += 1;
+        updateSlide();
+    }
+
+    function goPrev() {
+        currentIndex -= 1;
+        updateSlide();
+    }
+
+    function startAutoPlay() {
+        stopAutoPlay();
+        autoInterval = setInterval(goNext, MOBILE_SLIDE_INTERVAL);
+        playPauseBtn.textContent = '❚❚';
+        isPlayingMobile = true;
+    }
+
+    function stopAutoPlay() {
+        if (autoInterval) {
+            clearInterval(autoInterval);
+            autoInterval = null;
+        }
+        playPauseBtn.textContent = '▶';
+        isPlayingMobile = false;
+    }
+
+    function togglePlayPause() {
+        if (isPlayingMobile) {
+            stopAutoPlay();
+        } else {
+            startAutoPlay();
+        }
+    }
+
+    prevBtn.addEventListener('click', () => {
+        goPrev();
+        if (isPlayingMobile) {
+            startAutoPlay();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goNext();
+        if (isPlayingMobile) {
+            startAutoPlay();
+        }
+    });
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+
+    mobileGallery.addEventListener('touchstart', stopAutoPlay, { once: true });
+
+    updateSlide();
+    startAutoPlay();
+}
+
 // Configurar carrusel infinito
 window.addEventListener('load', () => {
     createParticles();
 
     // Carrusel infinito sin saltos (optimizado para móviles)
     const slideshowContainer = document.getElementById('slideshowContainer');
+    if (isMobile) {
+        initMobileGallery();
+        return;
+    }
+
     if (!slideshowContainer) {
         return;
     }
