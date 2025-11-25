@@ -217,7 +217,7 @@ function createParticles() {
     }
 }
 
-// Precargar imágenes inmediatamente (no esperar a window.load)
+// Precargar imágenes de forma controlada
 const imagePaths = [
     './imagen1.jpg',
     './imagen2.jpg',
@@ -230,27 +230,29 @@ const imagePaths = [
     './imagen9.jpeg'
 ];
 
-// Precargar imágenes de forma optimizada y agresiva
-function preloadImages() {
-    // Cargar todas las imágenes en paralelo de forma inmediata
-    const loadPromises = imagePaths.map((path, index) => {
+const HIGH_PRIORITY_COUNT = 5;
+const UNIQUE_IMAGE_COUNT = 9;
+
+function preloadImageGroup(paths, priorityLabel = 'auto') {
+    if (!paths.length) return;
+
+    const loadPromises = paths.map((path, index) => {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            // Precargar las primeras 5 imágenes con alta prioridad
-            if (index < 5 && img.fetchPriority !== undefined) {
-                img.fetchPriority = 'high';
+            if (img.fetchPriority !== undefined) {
+                img.fetchPriority = priorityLabel === 'high' ? 'high' : 'low';
             }
+            img.decoding = 'async';
             img.onload = () => {
-                console.log(`✓ Imagen ${index + 1} cargada`);
+                console.log(`✓ Imagen ${path} cargada (${priorityLabel})`);
                 resolve(img);
             };
             img.onerror = () => {
-                console.error(`✗ Error al cargar imagen ${index + 1}, intentando ruta alternativa`);
-                // Intentar con ruta alternativa
+                console.error(`✗ Error al cargar ${path}, intentando ruta alternativa`);
                 const altPath = path.replace('./', '');
                 const altImg = new Image();
+                altImg.decoding = 'async';
                 altImg.onload = () => {
-                    // Actualizar todas las instancias de esta imagen
                     const slideshowImgs = document.querySelectorAll('.slideshow-image');
                     slideshowImgs.forEach(slideshowImg => {
                         if (slideshowImg.src.includes(path.split('/').pop()) || slideshowImg.src.includes(altPath.split('/').pop())) {
@@ -264,23 +266,32 @@ function preloadImages() {
                 };
                 altImg.src = altPath;
             };
-            // Iniciar carga inmediatamente
             img.src = path;
         });
     });
-    
-    // No esperar a que todas terminen, pero sí iniciar la carga
+
     Promise.allSettled(loadPromises).then(() => {
-        console.log('Todas las imágenes procesadas');
+        console.log(`Grupo ${priorityLabel} procesado`);
     });
 }
 
-// Iniciar precarga inmediatamente, incluso antes de DOMContentLoaded
-preloadImages();
+// Precargar solo las imágenes críticas al inicio
+preloadImageGroup(imagePaths.slice(0, HIGH_PRIORITY_COUNT), 'high');
 
-// También asegurar carga cuando el DOM esté listo
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', preloadImages);
+// Diferir el resto para no bloquear la carga inicial
+function scheduleDeferredImagePreload() {
+    const startDeferred = () => preloadImageGroup(imagePaths.slice(HIGH_PRIORITY_COUNT), 'low');
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(startDeferred, { timeout: 2000 });
+    } else {
+        setTimeout(startDeferred, 600);
+    }
+}
+
+if (document.readyState === 'complete') {
+    scheduleDeferredImagePreload();
+} else {
+    window.addEventListener('load', scheduleDeferredImagePreload, { once: true });
 }
 
 // Configurar carrusel infinito
@@ -289,10 +300,20 @@ window.addEventListener('load', () => {
 
     // Carrusel infinito sin saltos (optimizado para móviles)
     const slideshowContainer = document.getElementById('slideshowContainer');
+    if (!slideshowContainer) {
+        return;
+    }
+
+    const getImageWidth = () => {
+        const firstImage = slideshowContainer.querySelector('.slideshow-image');
+        const measuredWidth = firstImage ? firstImage.getBoundingClientRect().width : window.innerWidth / UNIQUE_IMAGE_COUNT;
+        return measuredWidth || window.innerWidth / UNIQUE_IMAGE_COUNT;
+    };
+
     let currentPosition = 0;
-    let imageWidth = window.innerWidth / 9;
+    let imageWidth = getImageWidth();
     const speed = isMobile ? 1.2 : 1.5; // Velocidad ligeramente más lenta en móviles
-    let resetPoint = imageWidth * 9; // Punto donde resetear (final de primera serie)
+    let resetPoint = imageWidth * UNIQUE_IMAGE_COUNT; // Punto donde resetear (final de primera serie)
     
     function animateSlideshow() {
         currentPosition -= speed;
@@ -312,13 +333,12 @@ window.addEventListener('load', () => {
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            const newImageWidth = window.innerWidth / 9;
-            // Ajustar posición proporcionalmente
-            if (imageWidth > 0) {
-                currentPosition = (currentPosition / imageWidth) * newImageWidth;
-            }
-            imageWidth = newImageWidth;
-            resetPoint = imageWidth * 9;
+        const newImageWidth = getImageWidth();
+        if (imageWidth > 0 && newImageWidth > 0) {
+            currentPosition = (currentPosition / imageWidth) * newImageWidth;
+        }
+        imageWidth = newImageWidth;
+        resetPoint = imageWidth * UNIQUE_IMAGE_COUNT;
         }, 250); // Debounce para mejor rendimiento
     });
     
@@ -374,3 +394,48 @@ const animateNumbers = (element) => {
 
 document.querySelectorAll('.date-info').forEach(animateNumbers);
 
+// Contador regresivo hasta el gran día
+function startCountdown() {
+    const container = document.getElementById('weddingCountdown');
+    const daysEl = document.getElementById('countdownDays');
+    const hoursEl = document.getElementById('countdownHours');
+    const minutesEl = document.getElementById('countdownMinutes');
+    const secondsEl = document.getElementById('countdownSeconds');
+
+    if (!container || !daysEl || !hoursEl || !minutesEl || !secondsEl) {
+        return;
+    }
+
+    const targetDate = new Date('2025-12-27T00:00:00');
+
+    const updateCountdown = () => {
+        const now = Date.now();
+        const distance = targetDate.getTime() - now;
+
+        if (distance <= 0) {
+            ['countdownDays', 'countdownHours', 'countdownMinutes', 'countdownSeconds'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = '00';
+            });
+            container.classList.add('countdown-finished');
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        daysEl.textContent = String(days).padStart(2, '0');
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+        secondsEl.textContent = String(seconds).padStart(2, '0');
+    };
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
+
+startCountdown();
+
+         
