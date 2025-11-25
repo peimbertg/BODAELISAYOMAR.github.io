@@ -632,12 +632,12 @@ body::before {
     }
 
     .gallery-wrapper {
-        height: 420px;
+        height: 460px;
     }
 
     .slideshow-image {
-        min-width: calc(100vw / 5);
-        width: calc(100vw / 5);
+        min-width: calc(100vw / 3.2);
+        width: calc(100vw / 3.2);
     }
 }
 
@@ -777,12 +777,12 @@ body::before {
     }
 
     .gallery-wrapper {
-        height: 360px;
+        height: 420px;
     }
 
     .slideshow-image {
-        min-width: calc(100vw / 4);
-        width: calc(100vw / 4);
+        min-width: calc(100vw / 2.2);
+        width: calc(100vw / 2.2);
     }
 
     .ornament {
@@ -824,12 +824,12 @@ body::before {
     }
 
     .gallery-wrapper {
-        height: 320px;
+        height: 380px;
     }
 
     .slideshow-image {
-        min-width: calc(100vw / 3.2);
-        width: calc(100vw / 3.2);
+        min-width: calc(100vw / 1.8);
+        width: calc(100vw / 1.8);
     }
 }
 
@@ -1000,5 +1000,3 @@ html {
     }
 }
 
-
-  
