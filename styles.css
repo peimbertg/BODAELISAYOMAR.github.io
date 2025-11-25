@@ -160,6 +160,14 @@ body::before {
     color: #000;
 }
 
+.countdown-date {
+    font-size: 1.05em;
+    margin-top: 20px;
+    letter-spacing: 1px;
+    color: #6a6a6a;
+    text-transform: uppercase;
+}
+
 .countdown {
     margin-top: 35px;
     display: flex;
@@ -572,6 +580,11 @@ body::before {
         font-size: 1.1em;
     }
 
+    .countdown-date {
+        font-size: 0.95em;
+        letter-spacing: 0.5px;
+    }
+
     .countdown {
         gap: 14px;
     }
@@ -673,6 +686,11 @@ body::before {
         font-size: 1em;
         line-height: 1.6;
         margin-top: 25px;
+    }
+
+    .countdown-date {
+        font-size: 0.9em;
+        margin-top: 15px;
     }
 
     .countdown {
