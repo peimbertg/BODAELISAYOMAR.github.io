@@ -900,6 +900,40 @@ body::before {
     filter: brightness(1.1) contrast(1.1);
 }
 
+/* Ajustes específicos para que las imágenes sean más anchas en móviles */
+@media (max-width: 768px) {
+    .gallery-wrapper {
+        height: 480px;
+    }
+
+    .slideshow-image {
+        min-width: 45vw;
+        width: 45vw;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-wrapper {
+        height: 440px;
+    }
+
+    .slideshow-image {
+        min-width: 65vw;
+        width: 65vw;
+    }
+}
+
+@media (max-width: 360px) {
+    .gallery-wrapper {
+        height: 400px;
+    }
+
+    .slideshow-image {
+        min-width: 80vw;
+        width: 80vw;
+    }
+}
+
 /* Decoración adicional */
 .ornament {
     text-align: center;
