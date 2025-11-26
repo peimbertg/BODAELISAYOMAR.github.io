@@ -1132,6 +1132,17 @@ html {
         background-attachment: scroll !important;
     }
 }
+/* FORZAR AJUSTE DE IMAGEN EN CELULAR */
+@media only screen and (max-width: 768px) {
+    html body {
+        background-size: cover !important;
+        background-position: center top !important;
+        background-repeat: no-repeat !important;
+        background-attachment: scroll !important;
+        background-color: #000 !important; /* puedes cambiarlo si quieres */
+    }
+}
+
 
 
 
