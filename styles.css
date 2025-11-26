@@ -1123,6 +1123,16 @@ html {
         transform: translateZ(0); /* Aceleración de hardware */
     }
 }
+/* Ajustar imagen de fondo específicamente para celulares */
+@media (max-width: 768px) {
+    body {
+        background-size: contain !important;
+        background-repeat: no-repeat !important;
+        background-position: center top !important;
+        background-color: #000; /* color de fondo para rellenar espacios */
+    }
+}
+
 
 
 
