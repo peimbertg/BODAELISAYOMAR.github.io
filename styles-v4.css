@@ -9,13 +9,10 @@ body {
     overflow-x: hidden;
     position: relative;
     min-height: 100vh;
-    background-image: url('./imagen6.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-color: #000000; /* Fondo negro */
     color: #333;
 }
+
 
 /* Overlay para mejorar legibilidad sobre la imagen */
 body::before {
@@ -1139,6 +1136,7 @@ html {
         background-color: #000 !important; /* puedes cambiarlo si quieres */
     }
 }
+
 
 
 
